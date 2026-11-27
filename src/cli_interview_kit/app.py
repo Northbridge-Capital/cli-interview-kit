@@ -37,21 +37,23 @@ _PATH = "_cik_path"
 
 
 class _ArgumentParser(argparse.ArgumentParser):
-    """An ``ArgumentParser`` whose help and usage render through rich.
+    """An ``ArgumentParser`` whose help and usage render through rich."""
 
-    ``add_subparsers()`` gives every subparser its parent's class, so this
-    one subclass covers every command.
-    """
+    # ``add_subparsers()`` gives every subparser its parent's class, so this one subclass covers
+    # every command.
 
     def print_help(self, file: object = None) -> None:
+        """Print the help through rich, ignoring ``file``."""
         _ = file
         print_help(self)
 
     def print_usage(self, file: object = None) -> None:
+        """Print the usage line through rich, ignoring ``file``."""
         _ = file
         print_usage(self)
 
     def error(self, message: str) -> NoReturn:
+        """Print the usage and the message, then exit with status 2."""
         print_usage(self)
         Console().error(message)
         self.exit(2)
@@ -62,17 +64,24 @@ class App(FrozenModel):
 
     Attributes
     ----------
-    name : str
+    name
         Program name.
-    description : str
+    description
         Top-level help.
-    version : str
+    version
         What ``--version`` prints after the name.
-    commands : tuple[Command, ...]
+    commands
         The top-level commands.
-    expected_errors : tuple[type[Exception], ...]
+    expected_errors
         Further exception types whose message is reported like a
         ``CliError``, for failures the app's own libraries raise.
+
+    Methods
+    -------
+    main
+        Run the command ``argv`` selects and return the exit code.
+    build_parser
+        Return the argument parser for every declared command.
     """
 
     name: str = Field(min_length=1)
@@ -94,14 +103,17 @@ class App(FrozenModel):
 
         Parameters
         ----------
-        argv : Sequence[str] | None, optional
+        argv
             The arguments after the program name; ``sys.argv[1:]`` if omitted.
 
         Returns
         -------
-        int
-            0 on success, 1 on a failure, 130 when interrupted. A usage
-            error exits 2 through ``SystemExit``, as argparse does.
+        The exit code: 0 on success, 1 on a failure, 130 when interrupted.
+
+        Raises
+        ------
+        SystemExit
+            A usage error (an unknown flag, a bad choice) exits with status 2, as argparse does.
         """
         console = Console()
         args = self.build_parser().parse_args(argv)
@@ -127,7 +139,12 @@ class App(FrozenModel):
         return 0
 
     def build_parser(self) -> argparse.ArgumentParser:
-        """Return the argument parser for every declared command."""
+        """Return the argument parser for every declared command.
+
+        Returns
+        -------
+        The parser, with ``--version``, ``--debug`` and one subparser per command.
+        """
         parser = _ArgumentParser(prog=self.name, description=self.description)
         _ = parser.add_argument(
             "--version", action="version", version=f"{self.name} {self.version}"
@@ -141,6 +158,7 @@ class App(FrozenModel):
         return parser
 
     def _dispatch(self, console: Console, values: dict[str, Any]) -> None:
+        """Print the selected command's ``--questions``, or answer its interview and run it."""
         command: Command = values[_COMMAND]
         command_line = " ".join(values[_PATH])
         options = {option.dest: values.get(option.dest) for option in command.options}

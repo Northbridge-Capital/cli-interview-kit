@@ -19,14 +19,44 @@ _BYTE_SIZE = re.compile(r"\d+[kmgt]?b?")
 
 
 def non_empty(value: str) -> str:
-    """Reject a blank answer."""
+    """Reject a blank answer.
+
+    Parameters
+    ----------
+    value
+        The answer as typed.
+
+    Returns
+    -------
+    The answer, unchanged.
+
+    Raises
+    ------
+    ValueError
+        The answer is blank.
+    """
     if not value.strip():
         raise ValueError("A value is required.")
     return value
 
 
 def whole_number(value: str) -> str:
-    """Accept a whole number, or a blank answer."""
+    """Accept a whole number, or a blank answer.
+
+    Parameters
+    ----------
+    value
+        The answer as typed.
+
+    Returns
+    -------
+    The answer, unchanged.
+
+    Raises
+    ------
+    ValueError
+        The answer is neither blank nor a whole number.
+    """
     stripped = value.strip()
     if stripped and not stripped.removeprefix("-").isdigit():
         raise ValueError("Enter a whole number, or leave it blank.")
@@ -34,7 +64,22 @@ def whole_number(value: str) -> str:
 
 
 def byte_size(value: str) -> str:
-    """Accept a size such as ``512m`` or ``1g``, or a blank answer."""
+    """Accept a size such as ``512m`` or ``1g``, or a blank answer.
+
+    Parameters
+    ----------
+    value
+        The answer as typed.
+
+    Returns
+    -------
+    The answer, unchanged.
+
+    Raises
+    ------
+    ValueError
+        The answer is neither blank nor a size.
+    """
     stripped = value.strip()
     if stripped and not _BYTE_SIZE.fullmatch(stripped.lower()):
         raise ValueError("Enter a size such as 512m or 1g, or leave it blank.")

@@ -12,10 +12,21 @@ from cli_interview_kit.validators import Validator, all_of, non_empty
 def parse_kv(items: Sequence[str] | None, flag: str) -> dict[str, str]:
     """Parse repeated ``KEY=VALUE`` flag values into a dict.
 
+    Parameters
+    ----------
+    items
+        The values of a repeatable flag, or ``None`` if it was not given.
+    flag
+        The flag's name, for error messages.
+
+    Returns
+    -------
+    The values, by key.
+
     Raises
     ------
     CliError
-        If a value has no ``=`` or an empty key.
+        A value has no ``=`` or an empty key.
     """
     result: dict[str, str] = {}
     for item in items or ():
@@ -69,11 +80,8 @@ def prompt_pairs(
 
 
 def _keep_adding(console: Console, label: str, required: bool, collected: int) -> bool:
-    """Return whether to ask for another item.
-
-    A required collection asks for its first item straight away, so it can
-    never end up empty.
-    """
+    """Return whether to ask for another item."""
+    # A required collection asks for its first item straight away, so it can never end up empty.
     if collected:
         return console.confirm("Add another?", default=False)
     return required or console.confirm(f"Add {_with_article(label)}?", default=False)

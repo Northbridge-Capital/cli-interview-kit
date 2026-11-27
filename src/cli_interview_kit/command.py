@@ -38,24 +38,31 @@ class Option(FrozenModel):
 
     Attributes
     ----------
-    dest : str
+    dest
         The name the value is read by, in snake_case; the flag is ``--``
         plus the name with dashes.
-    help : str
+    help
         Help text.
-    kind : Literal["switch", "value", "append", "positional"]
+    kind
         ``switch`` is an on/off flag; ``value`` takes one value; ``append``
         is repeatable; ``positional`` is an argument.
-    metavar : str | None
+    metavar
         Value placeholder in help.
-    choices : tuple[str, ...]
+    choices
         Allowed values.
-    nargs : str | None
+    nargs
         A positional's arity, e.g. ``"*"``.
-    convert : Callable[[str], Any] | None
+    convert
         Converts and checks a value; raising ``ValueError`` is a usage error.
-    exclusive : str | None
+    exclusive
         Options sharing this name are mutually exclusive.
+    flag
+        The option's flag, or its name for a positional.
+
+    Methods
+    -------
+    describe
+        Describe the option as ``--questions`` lists it.
     """
 
     dest: str = Field(pattern=r"^[a-z][a-z0-9_]*$")
@@ -86,7 +93,12 @@ class Option(FrozenModel):
         return "--" + self.dest.replace("_", "-")
 
     def describe(self) -> dict[str, Any]:
-        """Return the option as ``--questions`` lists it."""
+        """Describe the option as ``--questions`` lists it.
+
+        Returns
+        -------
+        The option's flag, kind and help.
+        """
         return {"flag": self.flag, "kind": self.kind, "help": self.help}
 
 
@@ -95,14 +107,14 @@ class Invocation(FrozenModel):
 
     Attributes
     ----------
-    console : Console
+    console
         Output and prompts.
-    interaction : Interaction
+    interaction
         Whether the run may prompt and has consent; pass it to
         ``Consent.ask``.
-    answers : dict[str, Any]
+    answers
         The answers of the questions that applied, by key.
-    options : dict[str, Any]
+    options
         The options' values, by ``dest``.
     """
 
@@ -117,19 +129,21 @@ class Command(FrozenModel):
 
     Attributes
     ----------
-    name : str
+    name
         The command's name on the command line.
-    help : str
+    help
         One-line help.
-    options : tuple[Option, ...]
+    options
         Plain options and positionals.
-    interview : Interview
+    interview
         Questions and consents. A command with any gets ``--yes`` and
         ``--questions``.
-    run : Callable[[Invocation], None] | None
+    run
         What the command does; ``None`` for a group of subcommands.
-    subcommands : tuple[Command, ...]
+    subcommands
         Nested commands.
+    interactive
+        Whether the command has questions or consents.
     """
 
     name: str = Field(pattern=r"^[a-z][a-z0-9-]*$")

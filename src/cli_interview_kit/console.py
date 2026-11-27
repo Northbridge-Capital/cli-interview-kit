@@ -51,19 +51,25 @@ class Console:
 
     Methods
     -------
-    print(renderable)
-        Print a result to stdout: text, rich markup or any rich renderable.
-    info(message), success(message), warning(message), error(message)
-        Print a labelled status line to stderr, as plain text.
-    progress(description)
+    print
+        Print a result to stdout: text, rich markup or a rich renderable.
+    info
+        Print an informational status line.
+    success
+        Print a success status line.
+    warning
+        Print a warning status line.
+    error
+        Print an error status line.
+    progress
         Show a progress bar on stderr for a series of named steps.
-    select(prompt, choices, label)
+    select
         Ask for one of ``choices``.
-    checkbox(prompt, choices, label, checked)
+    checkbox
         Ask for any number of ``choices``.
-    confirm(prompt, default)
+    confirm
         Ask a yes/no question.
-    text(prompt, default, validate, suggestions)
+    text
         Ask for free text, validated, optionally with suggestions.
     """
 
@@ -72,26 +78,57 @@ class Console:
         self._err = RichConsole(stderr=True)
 
     def print(self, renderable: object) -> None:
-        """Print a result to stdout: text, rich markup or a rich renderable."""
+        """Print a result to stdout: text, rich markup or a rich renderable.
+
+        Parameters
+        ----------
+        renderable
+            Text, rich markup or any rich renderable.
+        """
         self._out.print(renderable)
 
     def info(self, message: str) -> None:
-        """Print an informational status line."""
+        """Print an informational status line.
+
+        Parameters
+        ----------
+        message
+            The text to show, printed literally.
+        """
         self._status("INFO", "bold cyan", message)
 
     def success(self, message: str) -> None:
-        """Print a success status line."""
+        """Print a success status line.
+
+        Parameters
+        ----------
+        message
+            The text to show, printed literally.
+        """
         self._status("OK", "bold green", message)
 
     def warning(self, message: str) -> None:
-        """Print a warning status line."""
+        """Print a warning status line.
+
+        Parameters
+        ----------
+        message
+            The text to show, printed literally.
+        """
         self._status("WARN", "bold yellow", message)
 
     def error(self, message: str) -> None:
-        """Print an error status line."""
+        """Print an error status line.
+
+        Parameters
+        ----------
+        message
+            The text to show, printed literally.
+        """
         self._status("ERROR", "bold red", message)
 
     def _status(self, label: str, style: str, message: str) -> None:
+        """Print a labelled status line to stderr."""
         # Soft wrap: a long message stays one line when piped, for whatever reads it.
         self._err.print(
             Text.assemble((label, style), " ", message), highlight=False, soft_wrap=True
@@ -103,14 +140,13 @@ class Console:
 
         Parameters
         ----------
-        description : str
+        description
             What the steps do together, e.g. ``"Checking files"``.
 
         Yields
         ------
-        Callable[[int, int, str], None]
-            ``update(index, total, detail)``: call it before each step, with
-            the step's 1-based index and what it is doing.
+        ``update(index, total, detail)``: call it before each step, with the step's
+        1-based index and what it is doing.
         """
         with Progress(
             TextColumn("[bold cyan]INFO[/bold cyan]"),
@@ -132,24 +168,23 @@ class Console:
 
         Parameters
         ----------
-        prompt : str
+        prompt
             The question.
-        choices : Sequence[T]
+        choices
             What can be chosen.
-        label : Callable[[T], str]
+        label
             How each choice is shown.
 
         Returns
         -------
-        T
-            The chosen item.
+        The chosen item.
 
         Raises
         ------
         CliError
-            If there is nothing to choose from.
+            There is nothing to choose from.
         KeyboardInterrupt
-            If the user cancels.
+            The user cancels.
         """
         if not choices:
             raise CliError(f"{prompt}: nothing to choose from.")
@@ -173,27 +208,26 @@ class Console:
 
         Parameters
         ----------
-        prompt : str
+        prompt
             The question.
-        choices : Sequence[T]
+        choices
             What can be chosen.
-        label : Callable[[T], str]
+        label
             How each choice is shown.
-        checked : Sequence[T] | None, optional
+        checked
             The choices ticked when the prompt opens; every choice when
             omitted, so the common answer "all of them" is one keypress.
 
         Returns
         -------
-        list[T]
-            The chosen items, in ``choices`` order.
+        The chosen items, in ``choices`` order.
 
         Raises
         ------
         CliError
-            If there is nothing to choose from.
+            There is nothing to choose from.
         KeyboardInterrupt
-            If the user cancels.
+            The user cancels.
         """
         if not choices:
             raise CliError(f"{prompt}: nothing to choose from.")
@@ -214,10 +248,21 @@ class Console:
     def confirm(self, prompt: str, default: bool) -> bool:
         """Ask a yes/no question.
 
+        Parameters
+        ----------
+        prompt
+            The question.
+        default
+            The answer an empty reply gives.
+
+        Returns
+        -------
+        The answer.
+
         Raises
         ------
         KeyboardInterrupt
-            If the user cancels.
+            The user cancels.
         """
         answer: object = questionary.confirm(prompt, default=default, style=PROMPT_STYLE).ask()
         if not isinstance(answer, bool):
@@ -235,26 +280,25 @@ class Console:
 
         Parameters
         ----------
-        prompt : str
+        prompt
             The question.
-        default : str, optional
+        default
             Text the input starts with.
-        validate : Validator | None, optional
+        validate
             Raises ``ValueError`` for an invalid answer; its message is shown
             under the input until the answer changes.
-        suggestions : Sequence[str], optional
+        suggestions
             Values listed under the input while they match what is typed.
             Any other value can still be entered.
 
         Returns
         -------
-        str
-            The answer.
+        The answer.
 
         Raises
         ------
         KeyboardInterrupt
-            If the user cancels.
+            The user cancels.
         """
 
         def _verdict(value: str) -> bool | str:

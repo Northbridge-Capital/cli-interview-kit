@@ -6,10 +6,8 @@ from pydantic import BaseModel, ConfigDict
 
 
 class FrozenModel(BaseModel):
-    """Immutable pydantic base for every declaration and value object.
+    """An immutable pydantic base for every declaration and value object."""
 
-    Declarations hold callables (run functions, validators, choice sources),
-    so arbitrary types are allowed.
-    """
-
+    # Declarations hold callables (run functions, validators, choice sources), so arbitrary
+    # types are allowed.
     model_config = ConfigDict(frozen=True, arbitrary_types_allowed=True, extra="forbid")

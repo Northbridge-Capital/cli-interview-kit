@@ -47,6 +47,9 @@ class _State(BaseModel):
         return found[:MAX_SHOWN]
 
 
+# ``validate`` returns ``True`` when valid, else the message to show. ``style`` uses the ``qmark``,
+# ``question``, ``answer``, ``pointer``, ``suggestion`` and ``validation-toolbar`` classes, like
+# the other prompts. The answer is ``None`` when the user cancels with Ctrl-C.
 def suggest_text(
     prompt: str,
     suggestions: Sequence[str],
@@ -55,28 +58,7 @@ def suggest_text(
     validate: Callable[[str], bool | str] | None = None,
     style: BaseStyle | None = None,
 ) -> str | None:
-    """Ask for free text with suggestions listed under the input.
-
-    Parameters
-    ----------
-    prompt : str
-        The question.
-    suggestions : Sequence[str]
-        Values listed while they match what is typed.
-    default : str, optional
-        Initial input.
-    validate : Callable[[str], bool | str] | None, optional
-        ``True`` when valid, else the message to show.
-    style : BaseStyle | None, optional
-        Uses the ``qmark``, ``question``, ``answer``, ``pointer``,
-        ``suggestion`` and ``validation-toolbar`` classes, like the other
-        prompts.
-
-    Returns
-    -------
-    str | None
-        The answer, or ``None`` when cancelled with Ctrl-C.
-    """
+    """Ask for free text with suggestions listed under the input."""
     state = _State(suggestions=list(dict.fromkeys(suggestions)))
     buffer = Buffer(document=Document(default, len(default)), multiline=False)
     buffer.on_text_changed += lambda _buffer: _reset(state)  # pyright: ignore[reportUnknownLambdaType]

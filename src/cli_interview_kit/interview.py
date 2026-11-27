@@ -128,27 +128,61 @@ class Condition(FrozenModel):
 
     Attributes
     ----------
-    key : str
+    key
         An earlier question's key, an option's ``dest``, or a fact.
-    is_in : tuple[str | bool, ...]
+    is_in
         The values that satisfy the condition.
+
+    Methods
+    -------
+    holds
+        Return whether the context's value is one of ``is_in``.
+    describe
+        Return the condition as text.
     """
 
     key: str
     is_in: tuple[str | bool, ...] = Field(min_length=1)
 
     def holds(self, context: Mapping[str, Any]) -> bool:
-        """Return whether the context's value is one of ``is_in``."""
+        """Return whether the context's value is one of ``is_in``.
+
+        Parameters
+        ----------
+        context
+            The values conditions see: options, answers and facts, by key.
+
+        Returns
+        -------
+        Whether the condition holds.
+        """
         return self.key in context and context[self.key] in self.is_in
 
     def describe(self) -> str:
-        """Return the condition as text, e.g. ``source_type is files``."""
+        """Return the condition as text, e.g. ``source_type is files``.
+
+        Returns
+        -------
+        The condition as text.
+        """
         values = " or ".join(str(value).lower() for value in self.is_in)
         return f"{self.key} is {values}"
 
 
 def when(key: str, *values: str | bool) -> Condition:
-    """Return a condition: ``key`` is one of ``values``."""
+    """Return a condition: ``key`` is one of ``values``.
+
+    Parameters
+    ----------
+    key
+        An earlier question's key, an option's ``dest``, or a fact.
+    values
+        The values that satisfy the condition.
+
+    Returns
+    -------
+    The condition.
+    """
     return Condition(key=key, is_in=values)
 
 
@@ -157,57 +191,68 @@ class Question(FrozenModel):
 
     Attributes
     ----------
-    key : str
+    key
         Answer key, in snake_case; the flag is ``--`` plus the key with dashes.
-    section : str
+    section
         Interview section and help group.
-    kind : QuestionKind
+    kind
         How the question is answered.
-    prompt : str
+    prompt
         Terminal prompt. For ``list`` and ``pairs`` it names one item; for
         ``per_item`` it may use ``{item}``.
-    help : str
+    help
         What the answer means; the flag's help.
-    choices : tuple[str, ...]
+    choices
         Fixed choices of a ``select``, ``multiselect`` or ``per_item`` question.
-    choices_from : str | None
+    choices_from
         Dynamic choices from the interview's ``choices`` source of that name,
         after any fixed ones (per item for ``per_item``).
-    flag_choices_from : str | None
+    flag_choices_from
         Further values the flag accepts that the prompt does not offer.
-    items_from : str | None
+    items_from
         The ``choices`` source listing a ``per_item`` question's items.
-    labels : dict[str, str]
+    labels
         How choices are shown.
-    default : str | bool | int | None
+    default
         The answer when nobody is asked, and the prompt's starting value. A
         string may reference earlier text or select answers (``{name}``) and,
         for ``per_item``, ``{item}``.
-    default_from : str | None
+    default_from
         A dynamic default from the interview's ``defaults`` source instead.
-    required : bool
+    required
         The answer has no safe default: a run that cannot prompt fails
         without the flag.
-    validator : Validator | None
+    validator
         Checks every answer, at the prompt and from the flag.
-    metavar : str | None
+    metavar
         The flag's value placeholder in help.
-    prompted : bool
+    prompted
         Whether the terminal interview asks it; ``False`` for settings only
         set by flag.
-    custom : str | None
+    custom
         The custom kind of a ``custom`` question.
-    suggestions_from : str | None
+    suggestions_from
         A ``choices`` source of suggested values for a free-text answer:
         listed under the input in a terminal and by ``--questions``, never
         enforced.
-    group : str | None
+    group
         A group from ``Interview.groups`` an assistant may ask as one
         bundled question ("keep these defaults?").
-    when_all : tuple[Condition, ...]
+    when_all
         Asked only when every condition holds.
-    when_any : tuple[Condition, ...]
+    when_any
         Asked only when at least one condition holds, if any are declared.
+    flag
+        The flag answering this question.
+
+    Methods
+    -------
+    applies
+        Return whether the question is asked, given the context so far.
+    describe_conditions
+        Return when the question applies, as text.
+    placeholders
+        Return the ``{name}`` placeholders of a string default.
     """
 
     key: str = Field(pattern=r"^[a-z][a-z0-9_]*$")
@@ -239,6 +284,7 @@ class Question(FrozenModel):
 
     @field_serializer("validator")
     def _validator_name(self, validator: Validator | None) -> str | None:
+        """Serialize a validator as its function name."""
         return None if validator is None else getattr(validator, "__name__", "validator")
 
     @model_validator(mode="after")
@@ -304,20 +350,40 @@ class Question(FrozenModel):
         return self
 
     def applies(self, context: Mapping[str, Any]) -> bool:
-        """Return whether the question is asked, given the context so far."""
+        """Return whether the question is asked, given the context so far.
+
+        Parameters
+        ----------
+        context
+            The values conditions see: options, answers and facts, by key.
+
+        Returns
+        -------
+        Whether the question is asked.
+        """
         return all(c.holds(context) for c in self.when_all) and (
             not self.when_any or any(c.holds(context) for c in self.when_any)
         )
 
     def describe_conditions(self) -> str:
-        """Return when the question applies, as text."""
+        """Return when the question applies, as text.
+
+        Returns
+        -------
+        The conditions, joined with "and" and "or".
+        """
         parts = [c.describe() for c in self.when_all]
         if self.when_any:
             parts.append(" or ".join(c.describe() for c in self.when_any))
         return " and ".join(parts)
 
     def placeholders(self) -> list[str]:
-        """Return the ``{name}`` placeholders of a string default."""
+        """Return the ``{name}`` placeholders of a string default.
+
+        Returns
+        -------
+        The placeholder names; empty if the default is not a string.
+        """
         return _fields(self.default) if isinstance(self.default, str) else []
 
 
@@ -347,11 +413,11 @@ class CustomKind(FrozenModel):
 
     Attributes
     ----------
-    flag_form : str
+    flag_form
         How one flag value is written, for help and ``--questions``.
-    parse : Callable[[list[str]], Any]
+    parse
         Turns the flag's values into the answer; raises ``CliError``.
-    prompt : Callable[[Console], Any]
+    prompt
         Asks for the answer in a terminal, validating as it goes.
     """
 
@@ -365,24 +431,35 @@ class Interview(FrozenModel):
 
     Attributes
     ----------
-    questions : tuple[Question, ...]
+    questions
         The questions, in the order they are asked.
-    consents : tuple[Consent, ...]
+    consents
         The confirmations the command may ask for while it runs.
-    choices : dict[str, ChoiceSource]
+    choices
         Dynamic choice, item and suggestion sources, by name.
-    defaults : dict[str, DefaultSource]
+    defaults
         Dynamic default sources, by name.
-    offline : frozenset[str]
+    offline
         The choice sources that are local and cheap: ``--questions`` lists
         their values and only names the others.
-    facts : Facts | None
+    facts
         Facts derived from the answers and options, for conditions.
-    custom_kinds : dict[str, CustomKind]
+    custom_kinds
         The custom kinds the questions use, by name.
-    groups : dict[str, str]
+    groups
         Bundled question groups, by name, each with what it covers in one
         line.
+    consent_keys
+        The keys of the declared consents.
+
+    Methods
+    -------
+    add_arguments
+        Add one flag per question to a parser, grouped by section.
+    run
+        Answer every applicable question from its flag, a prompt, or its default.
+    document
+        Return the interview as the document ``--questions`` prints.
     """
 
     questions: tuple[Question, ...] = ()
@@ -459,7 +536,13 @@ class Interview(FrozenModel):
         return frozenset(consent.key for consent in self.consents)
 
     def add_arguments(self, parser: argparse.ArgumentParser) -> None:
-        """Add one flag per question to ``parser``, grouped by section."""
+        """Add one flag per question to ``parser``, grouped by section.
+
+        Parameters
+        ----------
+        parser
+            The command's argument parser.
+        """
         sections: dict[str, argparse._ArgumentGroup] = {}  # pyright: ignore[reportPrivateUsage]
         for question in self.questions:
             if question.section not in sections:
@@ -494,24 +577,23 @@ class Interview(FrozenModel):
 
         Parameters
         ----------
-        console : Console
+        console
             Where to ask.
-        interaction : Interaction
+        interaction
             Whether the run may prompt.
-        flag_values : Mapping[str, Any]
+        flag_values
             The parsed flags, by question key; ``None`` or ``[]`` if not given.
-        options : Mapping[str, Any]
+        options
             The command's option values, which conditions may test.
 
         Returns
         -------
-        dict[str, Any]
-            The answers of the questions that apply, by key.
+        The answers of the questions that apply, by key.
 
         Raises
         ------
         CliError
-            If a flag answers a question that does not apply, a value fails
+            A flag answers a question that does not apply, a value fails
             validation, or a run that cannot prompt misses a required answer.
         """
         asker = _Asker(self, console, interaction.can_prompt)
@@ -543,10 +625,14 @@ class Interview(FrozenModel):
 
         Parameters
         ----------
-        command_line : str
+        command_line
             How the command is invoked, e.g. ``mytool deploy``.
-        options : Sequence[Mapping[str, Any]]
+        options
             The command's plain options, described.
+
+        Returns
+        -------
+        The document: the questions, consents and options, with how an assistant asks them.
         """
         return {
             "version": QUESTIONS_FORMAT_VERSION,
@@ -629,10 +715,8 @@ class _Asker:
                 return self._custom(question, flag_value)
 
     def unprompted(self, question: Question, answers: Mapping[str, Any]) -> Any:
-        """Answer a question the interview never asks and no flag answered.
-
-        It takes its default, resolved like any other; a collection is empty.
-        """
+        """Answer a question the interview never asks and no flag answered."""
+        # It takes its default, resolved like any other; a collection is empty.
         if question.kind in ("list", "multiselect"):
             return []
         if question.kind in ("pairs", "per_item"):
@@ -690,9 +774,11 @@ class _Asker:
         ]
 
     def _label(self, question: Question) -> Callable[[str], str]:
+        """Return how a choice is shown: its label, or itself."""
         return lambda choice: question.labels.get(choice, choice)
 
     def _text(self, question: Question, flag_value: str | None, answers: Mapping[str, Any]) -> str:
+        """Answer a ``text`` question from its flag, a prompt, or its default."""
         if flag_value is not None:
             return self._checked(question, flag_value)
         default = self._default(question, answers) or ""
@@ -710,6 +796,7 @@ class _Asker:
     def _select(
         self, question: Question, flag_value: str | None, answers: Mapping[str, Any]
     ) -> str:
+        """Answer a ``select`` question from its flag, a prompt, or its default."""
         if flag_value is not None:
             allowed = self._flag_choices(question, answers)
             if flag_value not in allowed:
@@ -738,6 +825,7 @@ class _Asker:
     def _multiselect(
         self, question: Question, flag_value: list[str] | None, answers: Mapping[str, Any]
     ) -> list[str]:
+        """Answer a ``multiselect`` question from its flag, a prompt, or every choice."""
         if flag_value:
             allowed = self._flag_choices(question, answers)
             if unknown := sorted(set(flag_value) - set(allowed)):
@@ -756,6 +844,7 @@ class _Asker:
         return selected
 
     def _confirm(self, question: Question, flag_value: bool | None) -> bool:
+        """Answer a ``confirm`` question from its flag, a prompt, or its default."""
         if flag_value is not None:
             return flag_value
         default = bool(question.default)
@@ -764,6 +853,7 @@ class _Asker:
         return default
 
     def _int(self, question: Question, flag_value: int | None) -> int | None:
+        """Answer an ``int`` question from its flag, a prompt, or its default."""
         if flag_value is not None:
             return flag_value
         default = question.default if isinstance(question.default, int) else None
@@ -781,6 +871,7 @@ class _Asker:
     def _list(
         self, question: Question, flag_value: list[str] | None, answers: Mapping[str, Any]
     ) -> list[str]:
+        """Answer a ``list`` question from its flag, a prompt, or an empty list."""
         if flag_value:
             return [self._checked(question, value) for value in flag_value]
         if self._can_prompt:
@@ -796,6 +887,7 @@ class _Asker:
         return []
 
     def _pairs(self, question: Question, flag_value: list[str] | None) -> dict[str, str]:
+        """Answer a ``pairs`` question from its flag, a prompt, or an empty dict."""
         if flag_value:
             pairs = parse_kv(flag_value, question.flag)
             return {
@@ -816,6 +908,7 @@ class _Asker:
     def _per_item(
         self, question: Question, flag_value: list[str] | None, answers: Mapping[str, Any]
     ) -> dict[str, str]:
+        """Answer a ``per_item`` question: one value for each item of its source."""
         items = self._source(question.items_from, answers, None)
         supplied = parse_kv(flag_value, question.flag)
         if unknown := sorted(set(supplied) - set(items)):
@@ -830,6 +923,7 @@ class _Asker:
     def _per_item_answer(
         self, question: Question, item: str, flag_value: str | None, answers: Mapping[str, Any]
     ) -> str:
+        """Answer a ``per_item`` question for one item."""
         label = f"{question.flag} {item}=..."
         if flag_value is not None:
             return self._checked(question, flag_value, label)
@@ -852,6 +946,7 @@ class _Asker:
         return default
 
     def _custom(self, question: Question, flag_value: list[str] | None) -> Any:
+        """Answer a ``custom`` question with its kind's parser or prompt."""
         kind = self._interview.custom_kinds[str(question.custom)]
         if flag_value:
             return kind.parse(flag_value)
