@@ -7,6 +7,15 @@ version).
 
 ## [Unreleased]
 
+## [0.1.2] - 2026-11-27
+
+No code changes.
+
+### Fixed
+
+- The README's PyPI and Python-version badges render on the PyPI page again; they now use URLs
+  that bypass a stale cached error.
+
 ## [0.1.1] - 2026-11-27
 
 No behavior changes.
