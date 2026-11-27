@@ -1,8 +1,8 @@
 # cli-interview-kit
 
 [![CI](https://github.com/Northbridge-Capital/cli-interview-kit/actions/workflows/ci.yml/badge.svg)](https://github.com/Northbridge-Capital/cli-interview-kit/actions/workflows/ci.yml)
-[![PyPI](https://img.shields.io/pypi/v/cli-interview-kit)](https://pypi.org/project/cli-interview-kit/)
-[![Python](https://img.shields.io/pypi/pyversions/cli-interview-kit)](https://pypi.org/project/cli-interview-kit/)
+[![PyPI](https://img.shields.io/pypi/v/cli-interview-kit?style=flat)](https://pypi.org/project/cli-interview-kit/)
+[![Python](https://img.shields.io/pypi/pyversions/cli-interview-kit?style=flat)](https://pypi.org/project/cli-interview-kit/)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue)](https://github.com/Northbridge-Capital/cli-interview-kit/blob/main/LICENSE)
 
 Build Python command-line tools whose prompts are declared once and answered in three ways:
