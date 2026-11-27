@@ -1,0 +1,36 @@
+name: Bug report
+description: Something does not work as documented
+labels: [bug]
+body:
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened, and what did you expect?
+      description: Include the full output, run with `--debug` if there was an unexpected error. Never paste tokens, credentials or private data.
+    validations:
+      required: true
+  - type: textarea
+    id: repro
+    attributes:
+      label: Minimal declaration and command line to reproduce
+      render: python
+    validations:
+      required: true
+  - type: dropdown
+    id: answered-by
+    attributes:
+      label: How was the command answered?
+      options:
+        - At a terminal (prompts)
+        - By flags, with nobody to ask (CI, a pipe, --yes)
+        - By an AI assistant reading --questions
+        - Not about answering (help, output, errors)
+    validations:
+      required: true
+  - type: input
+    id: versions
+    attributes:
+      label: Versions and platform
+      description: "Output of: python -c \"import sys, cli_interview_kit as c, questionary, prompt_toolkit, rich.console; print(sys.version, c.__version__, questionary.__version__, prompt_toolkit.__version__)\" plus your OS and terminal."
+    validations:
+      required: true

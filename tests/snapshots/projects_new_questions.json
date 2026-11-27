@@ -1,0 +1,329 @@
+{
+  "version": 1,
+  "command": "projects new --yes",
+  "how_to_answer": {
+    "text": "--flag VALUE",
+    "select": "--flag CHOICE",
+    "multiselect": "repeat --flag CHOICE; omitted means every choice",
+    "confirm": "--flag or --no-flag",
+    "int": "--flag NUMBER",
+    "list": "repeat --flag VALUE",
+    "pairs": "repeat --flag KEY=VALUE",
+    "per_item": "repeat --flag ITEM=VALUE, one per item of items_from",
+    "custom": "see the question's custom kind under custom_kinds"
+  },
+  "procedure": [
+    "You are running this command for a user. Ask them the questions below, then run the command with their answers; do not answer for them.",
+    "Go through the questions in order, a few at a time, grouped by section, using whatever way of asking the user you have.",
+    "Skip a question whose when_all/when_any does not hold for the answers, options and facts so far.",
+    "Offer a select or multiselect question's choices (choices, choices_now, with their labels) as options and a confirm question as yes/no. For a free-text question, offer its suggestions_now as options and accept any other value the user gives.",
+    "Ask each applicable group once, as whether to keep its questions' defaults; ask the group's questions one by one only if the user wants a change. Do not bundle any other questions.",
+    "A required question must be answered. Do not ask a prompted: false question unless the user brings it up.",
+    "Before running, describe each consent that can apply and pass --yes only once the user has agreed to all of them. Consent does not carry over to another run.",
+    "Run `command` with one flag per answer, as how_to_answer shows; leave out the flag of an answer that kept its default.",
+    "If the run rejects a value, ask that question again with the error, then rerun."
+  ],
+  "rules": [
+    "Passing a flag for a question that does not apply fails the run.",
+    "Without its flag a question takes its default under --yes; a required question has no safe default.",
+    "A default may reference earlier answers ({name}) and, for per_item, {item}.",
+    "choices_from/items_from/suggestions_from name a dynamic source; choices_now, items_now and suggestions_now list its current values when it is local, otherwise the CLI checks the answer when it runs.",
+    "prompted false: a setting the terminal interview never asks.",
+    "consents: confirmations the run may need, given by --yes."
+  ],
+  "questions": [
+    {
+      "flag": "--name",
+      "key": "name",
+      "section": "project",
+      "kind": "text",
+      "prompt": "Project name",
+      "help": "The project's name, in snake_case.",
+      "choices": [],
+      "choices_from": null,
+      "flag_choices_from": null,
+      "items_from": null,
+      "labels": {},
+      "default": null,
+      "default_from": null,
+      "required": true,
+      "validator": "identifier",
+      "metavar": null,
+      "prompted": true,
+      "custom": null,
+      "suggestions_from": null,
+      "group": null,
+      "when_all": [],
+      "when_any": []
+    },
+    {
+      "flag": "--template",
+      "key": "template",
+      "section": "project",
+      "kind": "select",
+      "prompt": "Template",
+      "help": "What the project starts from.",
+      "choices": [
+        "library",
+        "service"
+      ],
+      "choices_from": null,
+      "flag_choices_from": null,
+      "items_from": null,
+      "labels": {
+        "library": "library (a package)",
+        "service": "service (deployed)"
+      },
+      "default": "library",
+      "default_from": null,
+      "required": false,
+      "validator": null,
+      "metavar": null,
+      "prompted": true,
+      "custom": null,
+      "suggestions_from": null,
+      "group": null,
+      "when_all": [],
+      "when_any": []
+    },
+    {
+      "flag": "--owner",
+      "key": "owner",
+      "section": "project",
+      "kind": "text",
+      "prompt": "Owning team",
+      "help": "The team that owns the project.",
+      "choices": [],
+      "choices_from": null,
+      "flag_choices_from": null,
+      "items_from": null,
+      "labels": {},
+      "default": "platform",
+      "default_from": null,
+      "required": false,
+      "validator": null,
+      "metavar": null,
+      "prompted": true,
+      "custom": null,
+      "suggestions_from": "owners",
+      "group": null,
+      "when_all": [],
+      "when_any": [],
+      "suggestions_now": [
+        "platform",
+        "data",
+        "web"
+      ]
+    },
+    {
+      "flag": "--environment",
+      "key": "environment",
+      "section": "deployment",
+      "kind": "multiselect",
+      "prompt": "Environments",
+      "help": "Where a service is deployed.",
+      "choices": [],
+      "choices_from": "environments",
+      "flag_choices_from": null,
+      "items_from": null,
+      "labels": {},
+      "default": null,
+      "default_from": null,
+      "required": false,
+      "validator": null,
+      "metavar": null,
+      "prompted": true,
+      "custom": null,
+      "suggestions_from": null,
+      "group": null,
+      "when_all": [
+        {
+          "key": "template",
+          "is_in": [
+            "service"
+          ]
+        }
+      ],
+      "when_any": [],
+      "choices_now": [
+        "dev"
+      ]
+    },
+    {
+      "flag": "--memory",
+      "key": "memory",
+      "section": "deployment",
+      "kind": "text",
+      "prompt": "Memory per instance",
+      "help": "Memory per instance, e.g. 512m.",
+      "choices": [],
+      "choices_from": null,
+      "flag_choices_from": null,
+      "items_from": null,
+      "labels": {},
+      "default": "512m",
+      "default_from": null,
+      "required": false,
+      "validator": "byte_size",
+      "metavar": null,
+      "prompted": true,
+      "custom": null,
+      "suggestions_from": null,
+      "group": "sizing",
+      "when_all": [
+        {
+          "key": "template",
+          "is_in": [
+            "service"
+          ]
+        }
+      ],
+      "when_any": []
+    },
+    {
+      "flag": "--instances",
+      "key": "instances",
+      "section": "deployment",
+      "kind": "int",
+      "prompt": "Instances",
+      "help": "How many instances run.",
+      "choices": [],
+      "choices_from": null,
+      "flag_choices_from": null,
+      "items_from": null,
+      "labels": {},
+      "default": 2,
+      "default_from": null,
+      "required": false,
+      "validator": null,
+      "metavar": null,
+      "prompted": true,
+      "custom": null,
+      "suggestions_from": null,
+      "group": "sizing",
+      "when_all": [
+        {
+          "key": "template",
+          "is_in": [
+            "service"
+          ]
+        }
+      ],
+      "when_any": []
+    },
+    {
+      "flag": "--package",
+      "key": "package",
+      "section": "project",
+      "kind": "text",
+      "prompt": "Package name",
+      "help": "The importable package name; defaults to the project name.",
+      "choices": [],
+      "choices_from": null,
+      "flag_choices_from": null,
+      "items_from": null,
+      "labels": {},
+      "default": "{name}",
+      "default_from": null,
+      "required": false,
+      "validator": "identifier",
+      "metavar": null,
+      "prompted": true,
+      "custom": null,
+      "suggestions_from": null,
+      "group": null,
+      "when_all": [],
+      "when_any": []
+    },
+    {
+      "flag": "--dependency",
+      "key": "dependency",
+      "section": "project",
+      "kind": "list",
+      "prompt": "dependency",
+      "help": "A package the project depends on.",
+      "choices": [],
+      "choices_from": null,
+      "flag_choices_from": null,
+      "items_from": null,
+      "labels": {},
+      "default": null,
+      "default_from": null,
+      "required": false,
+      "validator": null,
+      "metavar": null,
+      "prompted": true,
+      "custom": null,
+      "suggestions_from": null,
+      "group": null,
+      "when_all": [],
+      "when_any": []
+    },
+    {
+      "flag": "--label",
+      "key": "label",
+      "section": "project",
+      "kind": "pairs",
+      "prompt": "label",
+      "help": "A KEY=VALUE label to tag the project with.",
+      "choices": [],
+      "choices_from": null,
+      "flag_choices_from": null,
+      "items_from": null,
+      "labels": {},
+      "default": null,
+      "default_from": null,
+      "required": false,
+      "validator": null,
+      "metavar": null,
+      "prompted": true,
+      "custom": null,
+      "suggestions_from": null,
+      "group": null,
+      "when_all": [],
+      "when_any": []
+    },
+    {
+      "flag": "--ci",
+      "key": "ci",
+      "section": "project",
+      "kind": "confirm",
+      "prompt": "Add CI?",
+      "help": "Add a CI workflow.",
+      "choices": [],
+      "choices_from": null,
+      "flag_choices_from": null,
+      "items_from": null,
+      "labels": {},
+      "default": true,
+      "default_from": null,
+      "required": false,
+      "validator": null,
+      "metavar": null,
+      "prompted": true,
+      "custom": null,
+      "suggestions_from": null,
+      "group": null,
+      "when_all": [],
+      "when_any": []
+    }
+  ],
+  "custom_kinds": {},
+  "groups": {
+    "sizing": {
+      "covers": "memory and instance count of a service",
+      "questions": [
+        "--memory",
+        "--instances"
+      ]
+    }
+  },
+  "consents": [],
+  "options": [
+    {
+      "flag": "--dry-run",
+      "kind": "switch",
+      "help": "Show the project; create nothing."
+    }
+  ]
+}
