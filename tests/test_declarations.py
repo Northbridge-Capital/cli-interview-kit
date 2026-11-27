@@ -154,6 +154,7 @@ def test_a_command_runs_something() -> None:
         ((Option(dest="name", help="h"),), (question("name"),)),
         ((Option(dest="yes", kind="switch", help="h"),), ()),
         ((), (question("questions"),)),
+        ((Option(dest="debug", kind="switch", help="h"),), ()),
     ],
 )
 def test_command_names_do_not_clash(
@@ -186,3 +187,7 @@ def test_declarations_are_immutable() -> None:
     declared = question("name")
     with pytest.raises(ValidationError):
         declared.key = "other"  # pyright: ignore[reportAttributeAccessIssue]
+
+
+def test_version_is_free_for_a_command() -> None:
+    Command(name="go", help="Go.", options=(Option(dest="version", help="h"),), run=print)

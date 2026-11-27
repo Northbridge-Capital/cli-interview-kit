@@ -19,8 +19,14 @@ from cli_interview_kit.console import Console
 from cli_interview_kit.interaction import Interaction
 from cli_interview_kit.interview import Interview
 
-RESERVED_NAMES = frozenset({"help", "version", "debug", "yes", "questions"})
-"""Names the app's own flags use; no option or question may take them."""
+RESERVED_NAMES = frozenset({"help", "debug", "yes", "questions"})
+"""Names no option or question may take.
+
+``--help``, ``--yes`` and ``--questions`` are a command's own flags, and
+``debug`` is where the app's ``--debug`` lands in the parsed arguments every
+command shares. ``--version`` exists only on the app and stores nothing, so
+``version`` is free.
+"""
 
 
 class Option(FrozenModel):
