@@ -7,6 +7,14 @@ version).
 
 ## [Unreleased]
 
+## [0.1.1] - 2026-11-27
+
+No behavior changes.
+
+### Added
+
+- A Code of Conduct.
+
 ### Changed
 
 - Docstrings follow the NumPy convention (parameters, returns, raises, attributes and methods,
