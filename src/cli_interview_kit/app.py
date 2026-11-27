@@ -155,7 +155,7 @@ class App(FrozenModel):
         )
         answers = command.interview.run(console, interaction, values, options)
         # A command without a run has subcommands, and argparse requires one.
-        assert command.run is not None
+        assert command.run is not None  # noqa: S101 -- see the comment above
         command.run(
             Invocation(console=console, interaction=interaction, answers=answers, options=options)
         )
