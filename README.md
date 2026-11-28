@@ -3,6 +3,7 @@
 [![CI](https://github.com/Northbridge-Capital/cli-interview-kit/actions/workflows/ci.yml/badge.svg)](https://github.com/Northbridge-Capital/cli-interview-kit/actions/workflows/ci.yml)
 [![PyPI](https://img.shields.io/pypi/v/cli-interview-kit?style=flat)](https://pypi.org/project/cli-interview-kit/)
 [![Python](https://img.shields.io/pypi/pyversions/cli-interview-kit?style=flat)](https://pypi.org/project/cli-interview-kit/)
+[![Docs](https://img.shields.io/badge/docs-latest-blue)](https://northbridge-capital.github.io/cli-interview-kit/)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue)](https://github.com/Northbridge-Capital/cli-interview-kit/blob/main/LICENSE)
 
 Build Python command-line tools whose prompts are declared once and answered in three ways:
@@ -176,6 +177,8 @@ values a user typed are never interpreted as rich markup.
 
 ## More
 
+- [Documentation](https://northbridge-capital.github.io/cli-interview-kit/): the API reference, generated from the
+  docstrings, plus requirements, design and the changelog.
 - [Requirements](https://github.com/Northbridge-Capital/cli-interview-kit/blob/main/docs/requirements.md):
   what the package must do, what it deliberately does not, and how each is verified.
 - [Design](https://github.com/Northbridge-Capital/cli-interview-kit/blob/main/docs/design.md):

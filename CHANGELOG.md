@@ -7,6 +7,15 @@ version).
 
 ## [Unreleased]
 
+## [0.1.3] - 2026-11-28
+
+No code changes.
+
+### Added
+
+- API reference documentation, generated from the docstrings and type annotations, at
+  <https://northbridge-capital.github.io/cli-interview-kit/>. It is linked from the PyPI sidebar and the README.
+
 ## [0.1.2] - 2026-11-27
 
 No code changes.
