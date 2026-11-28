@@ -36,6 +36,7 @@ dependencies = [
 
 [project.urls]
 Homepage = "https://github.com/Northbridge-Capital/cli-interview-kit"
+Documentation = "https://northbridge-capital.github.io/cli-interview-kit/"
 Source = "https://github.com/Northbridge-Capital/cli-interview-kit"
 Issues = "https://github.com/Northbridge-Capital/cli-interview-kit/issues"
 Changelog = "https://github.com/Northbridge-Capital/cli-interview-kit/blob/main/CHANGELOG.md"
