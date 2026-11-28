@@ -33,6 +33,7 @@ user in its own chat, with the same validation and the same safety rules in all 
 | N4 | The package builds, renders on PyPI and imports from a clean environment; it is typed (`py.typed`). | CI `build` (`twine check --strict`) |
 | N5 | 95% or more test coverage; warnings in tests are errors; the README and the example are executed by the tests. | CI `test`, `tests/test_readme.py` |
 | N6 | Source passes strict type checking; workflows pass `actionlint` and `zizmor`; actions are pinned to commit SHAs. | CI `lint` |
+| N7 | The API reference is generated from the docstrings, builds without warnings, and lists every public name. | CI `docs`, `tests/test_api_reference.py` |
 
 ## Environment and constraints
 

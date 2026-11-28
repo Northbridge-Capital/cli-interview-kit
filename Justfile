@@ -21,3 +21,11 @@ test:
 # Run the example app, e.g. `just example new` or `just example new --questions`
 example *args="new":
     uv run python examples/projects.py {{args}}
+
+# Serve the documentation with live reload
+docs:
+    uv run --group docs sphinx-autobuild docs docs/_build/html
+
+# Build the documentation the way CI does (warnings are errors)
+docs-build:
+    uv run --group docs sphinx-build -W --keep-going -b html docs docs/_build/html
